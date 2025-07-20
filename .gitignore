@@ -1,0 +1,55 @@
+# Compiled Object files
+*.o
+*.obj
+
+# Executables
+client
+server
+client_bonus
+server_bonus
+
+# Libraries
+*.a
+*.so
+*.dylib
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Test files
+test
+test_*
+a.out
+
+# Temporary files
+*.tmp
+*.temp
+
+# Core dumps
+core
+core.*
+
+# Valgrind output
+vgcore.*
+
+# PDF files
+*.pdf
