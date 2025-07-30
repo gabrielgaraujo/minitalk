@@ -25,7 +25,4 @@ typedef struct s_server_data
 	pid_t	client_pid;
 }	t_server_data;
 
-void	send_char(pid_t pid, char c);
-void	send_string(pid_t pid, char *str);
-
 #endif

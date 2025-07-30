@@ -17,9 +17,7 @@ static t_server_data	g_server;
 static void	signal_handler(int sig, siginfo_t *info, void *context)
 {
 	(void)context;
-	
 	g_server.client_pid = info->si_pid;
-	
 	if (sig == SIGUSR1)
 		g_server.current_char = (g_server.current_char << 1);
 	else if (sig == SIGUSR2)
@@ -34,9 +32,7 @@ static void	signal_handler(int sig, siginfo_t *info, void *context)
 		g_server.current_char = 0;
 		g_server.bit_count = 0;
 	}
-	
-	// Send acknowledgment back to client
-	if (kill(g_server.client_pid, SIGUSR1) == -1)
+	if (kill(g_server.client_pid, SIGUSR2) == -1)
 	{
 		ft_printf("Error: Failed to send acknowledgment to client\n");
 		exit(1);
@@ -49,9 +45,17 @@ static void	setup_signal_handlers(void)
 
 	sa.sa_sigaction = signal_handler;
 	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = SA_SIGINFO;
-	sigaction(SIGUSR1, &sa, NULL);
-	sigaction(SIGUSR2, &sa, NULL);
+	sa.sa_flags = SA_SIGINFO | SA_RESTART;
+	if (sigaction(SIGUSR1, &sa, NULL) == -1)
+	{
+		ft_printf("Error: Failed to set up SIGUSR1 handler\n");
+		exit(1);
+	}
+	if (sigaction(SIGUSR2, &sa, NULL) == -1)
+	{
+		ft_printf("Error: Failed to set up SIGUSR2 handler\n");
+		exit(1);
+	}
 }
 
 int	main(void)
@@ -59,7 +63,6 @@ int	main(void)
 	g_server.current_char = 0;
 	g_server.bit_count = 0;
 	g_server.client_pid = 0;
-	
 	ft_printf("Server PID: %d\n", getpid());
 	ft_printf("Waiting for messages...\n");
 	setup_signal_handlers();
