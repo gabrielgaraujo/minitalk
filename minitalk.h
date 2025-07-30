@@ -6,7 +6,7 @@
 /*   By: gaaraujo <gaaraujo@student.42wolfsburg.de> +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/20 11:17:44 by gaaraujo          #+#    #+#             */
-/*   Updated: 2025/07/20 11:17:52 by gaaraujo         ###   ########.fr       */
+/*   Updated: 2025/07/20 11:32:34 by gaaraujo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,12 @@
 # include <stdlib.h>
 # include "libft/includes/libft.h"
 
-/*
-** ============================================================================
-** FUNCTION PROTOTYPES
-** ============================================================================
-*/
+typedef struct s_server_data
+{
+	char	current_char;
+	int		bit_count;
+}	t_server_data;
 
-void	signal_handler(int sig, siginfo_t *info, void *context);
 void	send_char(pid_t pid, char c);
 void	send_string(pid_t pid, char *str);
 
