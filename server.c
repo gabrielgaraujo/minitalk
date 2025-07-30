@@ -16,8 +16,10 @@ static t_server_data	g_server;
 
 static void	signal_handler(int sig, siginfo_t *info, void *context)
 {
-	(void)info;
 	(void)context;
+	
+	g_server.client_pid = info->si_pid;
+	
 	if (sig == SIGUSR1)
 		g_server.current_char = (g_server.current_char << 1);
 	else if (sig == SIGUSR2)
@@ -31,6 +33,13 @@ static void	signal_handler(int sig, siginfo_t *info, void *context)
 			ft_printf("%c", g_server.current_char);
 		g_server.current_char = 0;
 		g_server.bit_count = 0;
+	}
+	
+	// Send acknowledgment back to client
+	if (kill(g_server.client_pid, SIGUSR1) == -1)
+	{
+		ft_printf("Error: Failed to send acknowledgment to client\n");
+		exit(1);
 	}
 }
 
@@ -47,7 +56,12 @@ static void	setup_signal_handlers(void)
 
 int	main(void)
 {
+	g_server.current_char = 0;
+	g_server.bit_count = 0;
+	g_server.client_pid = 0;
+	
 	ft_printf("Server PID: %d\n", getpid());
+	ft_printf("Waiting for messages...\n");
 	setup_signal_handlers();
 	while (1)
 		pause();

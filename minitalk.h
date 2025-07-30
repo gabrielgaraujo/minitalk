@@ -22,6 +22,7 @@ typedef struct s_server_data
 {
 	char	current_char;
 	int		bit_count;
+	pid_t	client_pid;
 }	t_server_data;
 
 void	send_char(pid_t pid, char c);

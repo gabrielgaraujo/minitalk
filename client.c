@@ -12,6 +12,19 @@
 
 #include "minitalk.h"
 
+/*
+** Global variable justified: Signal handlers cannot receive parameters,
+** so we need a global variable to track acknowledgment reception status
+** between the signal handler and the main communication functions.
+*/
+static volatile int	g_ack_received = 0;
+
+static void	handle_acknowledgment(int signal)
+{
+	(void)signal;
+	g_ack_received = 1;
+}
+
 static int	validate_pid(char *pid_str)
 {
 	int	i;
@@ -30,6 +43,11 @@ static int	validate_pid(char *pid_str)
 
 static void	send_bit(pid_t pid, int bit)
 {
+	int	timeout_counter;
+
+	g_ack_received = 0;
+	timeout_counter = 0;
+	
 	if (bit == 0)
 	{
 		if (kill(pid, SIGUSR1) == -1)
@@ -46,7 +64,19 @@ static void	send_bit(pid_t pid, int bit)
 			exit(1);
 		}
 	}
-	usleep(100);
+	
+	// Wait for acknowledgment with timeout (1 second total)
+	while (!g_ack_received && timeout_counter < 10000)
+	{
+		usleep(100);
+		timeout_counter++;
+	}
+	
+	if (!g_ack_received)
+	{
+		ft_printf("Error: Timeout waiting for acknowledgment from server\n");
+		exit(1);
+	}
 }
 
 void	send_char(pid_t pid, char c)
@@ -76,7 +106,8 @@ void	send_string(pid_t pid, char *str)
 
 int	main(int argc, char **argv)
 {
-	pid_t	server_pid;
+	pid_t				server_pid;
+	struct sigaction	sa;
 
 	if (argc != 3)
 	{
@@ -94,6 +125,20 @@ int	main(int argc, char **argv)
 		ft_printf("Error: Invalid PID value\n");
 		return (1);
 	}
+	
+	// Set up signal handler for acknowledgments
+	sa.sa_handler = handle_acknowledgment;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	
+	if (sigaction(SIGUSR1, &sa, NULL) == -1)
+	{
+		ft_printf("Error: Failed to set up acknowledgment handler\n");
+		return (1);
+	}
+	
+	ft_printf("Sending message to server PID %d: \"%s\"\n", server_pid, argv[2]);
 	send_string(server_pid, argv[2]);
+	ft_printf("Message sent successfully!\n");
 	return (0);
 }
